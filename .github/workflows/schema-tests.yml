@@ -1,0 +1,23 @@
+name: Schema-based tests (Schemathesis)
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # toda segunda-feira, 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  schemathesis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Schemathesis
+        run: pip install -r schema-tests/requirements.txt
+
+      - name: Run Schemathesis (GET apenas, somente leitura)
+        run: bash schema-tests/run.sh
