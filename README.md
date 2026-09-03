@@ -24,13 +24,18 @@ Demonstrar, na prática:
   push e pull request.
 - Documentação de casos de teste ([`docs/test-plan.md`](docs/test-plan.md)) e
   de defeitos observados na API sob teste (issues do repositório).
+- Uma coleção **Postman**, gerada a partir da mesma especificação OpenAPI e
+  executada via **Newman**, como forma alternativa de rodar os testes de
+  contrato.
 
 ## Estrutura
 
 ```
 openapi/    especificação OpenAPI do recurso testado
-src/        cliente HTTP usado pelos testes
+src/        cliente HTTP usado pelos testes Jest
 tests/      casos de teste (Jest)
+postman/    collection e environment do Postman/Newman
+scripts/    script de execução da collection via Newman
 docs/       plano de testes e documentação
 .github/    workflow de CI
 ```
@@ -53,6 +58,23 @@ escrita (`POST`/`PUT`/`DELETE`) exigem um token pessoal da GoRest: copie
 Sem o token, esses testes são pulados automaticamente, tanto localmente
 quanto no CI.
 
+### Postman / Newman
+
+A coleção em [`postman/gorest.postman_collection.json`](postman/gorest.postman_collection.json)
+cobre os mesmos cenários dos testes Jest (leitura e escrita, positivos e
+negativos), com asserções via scripts de teste do Postman.
+
+```bash
+npm run postman:run             # roda tudo; sem GOREST_TOKEN, pula a pasta de escrita
+npm run postman:run:read-only   # roda só a pasta de leitura, mesmo com token configurado
+```
+
+> **Nota de segurança:** o `newman` traz uma dependência transitiva
+> (`handlebars`, via `postman-runtime`) com uma vulnerabilidade conhecida
+> reportada pelo `npm audit`. É a versão mais recente disponível do pacote;
+> o risco é aceito aqui porque o `newman` roda só localmente/no CI, como
+> devDependency, contra uma API pública de teste - não em produção.
+
 ## CI/CD
 
 Todo push e pull request para `main` dispara um workflow que:
@@ -60,6 +82,9 @@ Todo push e pull request para `main` dispara um workflow que:
 1. Valida a especificação OpenAPI (`swagger-cli validate`).
 2. Roda o lint (`eslint`).
 3. Executa a suíte de testes (`jest`).
+4. Executa a coleção Postman via Newman, restrita à pasta de leitura (para
+   não duplicar carga de escrita no sandbox público da GoRest a cada
+   execução - a cobertura de escrita já é validada pelos testes Jest).
 
 Pull requests exigem esses checks passando, mas o merge é sempre manual -
 não há auto-merge configurado neste repositório.

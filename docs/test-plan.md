@@ -50,9 +50,22 @@ Os 8 casos acima (TC-010 a TC-017) foram executados com sucesso contra a API
 real após a configuração do token, confirmando o formato de erro
 `[{"field":..., "message":...}]` usado nas asserções.
 
+## Coleção Postman / Newman
+
+A coleção [`postman/gorest.postman_collection.json`](../postman/gorest.postman_collection.json)
+espelha os mesmos 11 cenários acima (TC-001, TC-004 a TC-006, TC-008 a TC-013
+e TC-017, mais a variação "email já cadastrado"), organizados em duas pastas:
+
+- `Users - Leitura (sem autenticação)`: mesma cobertura de TC-001 a TC-008,
+  sem exigir token. É a pasta executada no CI (`npm run postman:run:read-only`).
+- `Users - Escrita (autenticado)`: mesma cobertura de TC-010 a TC-017,
+  encadeando variáveis de coleção (ex.: usa o usuário criado para depois
+  atualizar e remover). Executada localmente com `npm run postman:run`
+  quando `GOREST_TOKEN` está disponível.
+
+Executada e validada localmente: 11 requisições, 19 asserções, 0 falhas.
+
 ## Próximos passos
 
-- Ampliar a especificação OpenAPI e os testes para outros recursos da GoRest
-  (posts, comments, todos).
-- Adicionar uma coleção Postman/Newman gerada a partir da especificação
-  OpenAPI, como forma alternativa de execução dos testes de contrato.
+- Ampliar a especificação OpenAPI e os testes (Jest e Postman) para outros
+  recursos da GoRest (posts, comments, todos).
