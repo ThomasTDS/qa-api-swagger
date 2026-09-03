@@ -140,8 +140,36 @@ espelha os cenários acima dos quatro recursos, organizados em oito pastas
 Executada e validada localmente: 45 requisições, 78 asserções, 0 falhas
 (suíte completa); 20 requisições, 32 asserções, 0 falhas (somente leitura).
 
+## Testes orientados a schema (Schemathesis)
+
+Além dos casos escritos manualmente acima, [`schema-tests/`](../schema-tests/)
+usa o [Schemathesis](https://schemathesis.readthedocs.io/) para gerar
+automaticamente casos de teste (positivos e negativos) a partir de
+`openapi/gorest-openapi.yaml` via *property-based testing* - complementando a
+cobertura manual com combinações de entrada que não foram pensadas
+manualmente.
+
+Restrito de propósito a operações `GET` (idempotentes/somente leitura), com
+um limite baixo de exemplos por operação e rate limit conservador
+(`schema-tests/run.sh`): a GoRest é um sandbox público compartilhado, e rodar
+esse tipo de geração automática de casos contra `POST`/`PUT`/`DELETE`
+poluiria o sandbox e arriscaria estourar o rate limit do token. A cobertura
+de escrita já é validada pelos testes Jest e pela coleção Postman.
+
+Roda via [`.github/workflows/schema-tests.yml`](../.github/workflows/schema-tests.yml),
+semanalmente e sob demanda (`workflow_dispatch`) - **não** em todo push/PR,
+porque encontra comportamentos permanentes da API de terceiros (não
+regressões deste repositório), e um check que falha sempre por motivos fora
+do nosso controle só gera ruído em vez de sinal útil.
+
+Rodando localmente contra a API real (`--include-method GET`, 3 exemplos por
+operação), a ferramenta confirmou de forma automática o mesmo padrão de
+defeito documentado na [issue #3](https://github.com/ThomasTDS/qa-api-swagger/issues/3)
+(agora também via o parâmetro `status`, além de `gender`) e encontrou um
+defeito novo, documentado na [issue #9](https://github.com/ThomasTDS/qa-api-swagger/issues/9):
+respostas `405 Method Not Allowed` sem o header `Allow` exigido pela RFC
+9110, em 10 endpoints diferentes.
+
 ## Próximos passos
 
-- Testes orientados a schema (geração automática de casos a partir da spec
-  OpenAPI), para complementar os casos escritos manualmente.
 - Relatório de testes em HTML publicado como artefato do CI.

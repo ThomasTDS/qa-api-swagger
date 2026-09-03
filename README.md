@@ -31,18 +31,22 @@ Demonstrar, na prática:
   contrato.
 - Uma instância do **Swagger UI** publicada via GitHub Pages, renderizando a
   especificação diretamente do repositório.
+- Testes orientados a schema com **Schemathesis** (*property-based
+  testing*), gerando casos de teste automaticamente a partir da spec
+  OpenAPI - já encontrou e documentou defeitos reais na API sob teste.
 
 ## Estrutura
 
 ```
-openapi/     especificação OpenAPI dos recursos testados
-src/         cliente HTTP usado pelos testes Jest
-tests/       casos de teste (Jest)
-postman/     collection e environment do Postman/Newman
-scripts/     script de execução da collection via Newman
-swagger-ui/  página estática do Swagger UI, publicada via GitHub Pages
-docs/        plano de testes e documentação
-.github/     workflows de CI e deploy do Pages
+openapi/       especificação OpenAPI dos recursos testados
+src/           cliente HTTP usado pelos testes Jest
+tests/         casos de teste (Jest)
+postman/       collection e environment do Postman/Newman
+scripts/       script de execução da collection via Newman
+swagger-ui/    página estática do Swagger UI, publicada via GitHub Pages
+schema-tests/  testes orientados a schema (Schemathesis)
+docs/          plano de testes e documentação
+.github/       workflows de CI, deploy do Pages e testes de schema
 ```
 
 ## Como rodar localmente
@@ -88,6 +92,32 @@ A página (`swagger-ui/index.html`) carrega o Swagger UI por CDN e aponta para
 o arquivo da spec direto no branch `main` do repositório - qualquer merge que
 altere a spec atualiza a documentação publicada automaticamente, via o
 workflow [`pages.yml`](.github/workflows/pages.yml).
+
+## Testes orientados a schema (Schemathesis)
+
+Além dos testes escritos manualmente, [`schema-tests/`](schema-tests/) usa o
+[Schemathesis](https://schemathesis.readthedocs.io/) para gerar casos de
+teste automaticamente a partir de `openapi/gorest-openapi.yaml`, via
+*property-based testing* - útil para achar combinações de entrada que não
+foram pensadas manualmente.
+
+```bash
+pip install -r schema-tests/requirements.txt
+bash schema-tests/run.sh
+```
+
+Restrito de propósito a operações `GET`, com poucos exemplos por operação e
+rate limit conservador, para não gerar carga de escrita nem estourar limites
+no sandbox público da GoRest. Roda semanalmente e sob demanda via
+[`schema-tests.yml`](.github/workflows/schema-tests.yml) - não em todo
+push/PR, porque tende a encontrar comportamentos permanentes da API de
+terceiros (não regressões deste repositório), e não faz sentido um check que
+falha sempre por um motivo fora do nosso controle.
+
+Já encontrou e confirmou defeitos reais: reforçou a [issue #3](https://github.com/ThomasTDS/qa-api-swagger/issues/3)
+(filtros com valor fora do enum aceitos silenciosamente) e descobriu a
+[issue #9](https://github.com/ThomasTDS/qa-api-swagger/issues/9) (respostas
+405 sem o header `Allow` exigido pela RFC 9110).
 
 ## CI/CD
 
