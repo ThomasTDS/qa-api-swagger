@@ -2,13 +2,18 @@ require("dotenv").config();
 const path = require("path");
 const newman = require("newman");
 
+const READ_ONLY_FOLDERS = [
+  "Users - Leitura (sem autenticação)",
+  "Posts - Leitura (sem autenticação)",
+];
+
 const readOnly = process.argv.includes("--read-only");
 const hasToken = Boolean(process.env.GOREST_TOKEN);
-const runOnlyReadFolder = readOnly || !hasToken;
+const runOnlyReadFolders = readOnly || !hasToken;
 
 if (!hasToken && !readOnly) {
   console.log(
-    "GOREST_TOKEN não definido - rodando apenas a pasta 'Users - Leitura (sem autenticação)'."
+    "GOREST_TOKEN não definido - rodando apenas as pastas de leitura (sem autenticação)."
   );
 }
 
@@ -19,8 +24,8 @@ const options = {
   reporters: "cli",
 };
 
-if (runOnlyReadFolder) {
-  options.folder = "Users - Leitura (sem autenticação)";
+if (runOnlyReadFolders) {
+  options.folder = READ_ONLY_FOLDERS;
 }
 
 newman.run(options, (err, summary) => {

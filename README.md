@@ -31,7 +31,7 @@ Demonstrar, na prática:
 ## Estrutura
 
 ```
-openapi/    especificação OpenAPI do recurso testado
+openapi/    especificação OpenAPI dos recursos testados
 src/        cliente HTTP usado pelos testes Jest
 tests/      casos de teste (Jest)
 postman/    collection e environment do Postman/Newman
@@ -65,8 +65,8 @@ cobre os mesmos cenários dos testes Jest (leitura e escrita, positivos e
 negativos), com asserções via scripts de teste do Postman.
 
 ```bash
-npm run postman:run             # roda tudo; sem GOREST_TOKEN, pula a pasta de escrita
-npm run postman:run:read-only   # roda só a pasta de leitura, mesmo com token configurado
+npm run postman:run             # roda tudo; sem GOREST_TOKEN, pula as pastas de escrita
+npm run postman:run:read-only   # roda só as pastas de leitura, mesmo com token configurado
 ```
 
 > **Nota de segurança:** o `newman` traz uma dependência transitiva
@@ -82,7 +82,7 @@ Todo push e pull request para `main` dispara um workflow que:
 1. Valida a especificação OpenAPI (`swagger-cli validate`).
 2. Roda o lint (`eslint`).
 3. Executa a suíte de testes (`jest`).
-4. Executa a coleção Postman via Newman, restrita à pasta de leitura (para
+4. Executa a coleção Postman via Newman, restrita às pastas de leitura (para
    não duplicar carga de escrita no sandbox público da GoRest a cada
    execução - a cobertura de escrita já é validada pelos testes Jest).
 

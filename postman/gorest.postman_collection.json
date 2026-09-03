@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "b6f2a2b0-4d3e-4c8a-9e2a-1f7a6c9d3e10",
-    "name": "GoRest API - Users",
+    "name": "GoRest API - Users e Posts",
     "description": "Collection Postman gerada a partir de openapi/gorest-openapi.yaml, com scripts de teste (asserções) para cada requisição. Serve como forma alternativa de execução dos testes de contrato, via Newman.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -10,7 +10,10 @@
     { "key": "bearerToken", "value": "", "type": "string" },
     { "key": "userId", "value": "", "type": "string" },
     { "key": "existingEmail", "value": "", "type": "string" },
-    { "key": "createdUserId", "value": "", "type": "string" }
+    { "key": "createdUserId", "value": "", "type": "string" },
+    { "key": "postId", "value": "", "type": "string" },
+    { "key": "postUserId", "value": "", "type": "string" },
+    { "key": "createdPostId", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -348,6 +351,356 @@
               "raw": "{{baseUrl}}/users/{{createdUserId}}",
               "host": ["{{baseUrl}}"],
               "path": ["users", "{{createdUserId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Posts - Leitura (sem autenticação)",
+      "item": [
+        {
+          "name": "Listar posts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "page", "value": "1" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('retorna uma lista não vazia', () => {",
+                  "  pm.expect(Array.isArray(body)).to.be.true;",
+                  "  pm.expect(body.length).to.be.greaterThan(0);",
+                  "});",
+                  "pm.collectionVariables.set('postId', body[0].id);",
+                  "pm.collectionVariables.set('postUserId', body[0].user_id);"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar post existente por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('id retornado bate com o solicitado', () => {",
+                  "  pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get('postId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Listar posts de um usuário (nested)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{postUserId}}/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{postUserId}}", "posts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('todos os posts pertencem ao usuário informado', () => {",
+                  "  const body = pm.response.json();",
+                  "  const userId = pm.collectionVariables.get('postUserId');",
+                  "  pm.expect(body.every((post) => String(post.user_id) === userId)).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar ID inexistente",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "1"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Buscar ID em formato inválido",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/posts/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Posts - Escrita (autenticado)",
+      "item": [
+        {
+          "name": "Criar post",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{bearerToken}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{postUserId}},\n  \"title\": \"QA Portfolio Newman - Post\",\n  \"body\": \"Corpo do post criado via Newman.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('post criado com título correto', () => {",
+                  "  pm.expect(body.title).to.eql('QA Portfolio Newman - Post');",
+                  "});",
+                  "pm.collectionVariables.set('createdPostId', body.id);"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Atualizar post criado",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{bearerToken}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"QA Portfolio Newman - Post atualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{createdPostId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{createdPostId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('título atualizado', () => {",
+                  "  pm.expect(pm.response.json().title).to.eql('QA Portfolio Newman - Post atualizado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Criar sem campo obrigatório title",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{bearerToken}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{postUserId}},\n  \"body\": \"Corpo sem título\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('erro de validação aponta o campo title', () => {",
+                  "  const fields = pm.response.json().map((e) => e.field);",
+                  "  pm.expect(fields).to.include('title');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Criar com user_id inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{bearerToken}}", "type": "string" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"title\": \"Post com autor inexistente\",\n  \"body\": \"Corpo do post\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('erro de validação indica que o usuário não existe', () => {",
+                  "  const errors = pm.response.json();",
+                  "  const userError = errors.find((e) => e.field === 'user');",
+                  "  pm.expect(userError.message).to.eql('must exist');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Criar sem token de autenticação",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "auth": { "type": "noauth" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{postUserId}},\n  \"title\": \"Post sem token\",\n  \"body\": \"Corpo do post\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('mensagem de erro esperada', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('Authentication failed');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Remover post criado",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{bearerToken}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{createdPostId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{createdPostId}}"]
             }
           },
           "event": [

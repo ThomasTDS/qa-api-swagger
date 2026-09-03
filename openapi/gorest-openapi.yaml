@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: GoRest API - Users
+  title: GoRest API - Users e Posts
   description: >
-    Documentação OpenAPI (não oficial) do recurso Users da GoRest
+    Documentação OpenAPI (não oficial) dos recursos Users e Posts da GoRest
     (https://gorest.co.in), escrita a partir da observação do comportamento
     real da API pública. Usada como contrato de referência para os testes
     automatizados deste repositório.
@@ -21,6 +21,8 @@ servers:
 tags:
   - name: Users
     description: Operações sobre o recurso de usuários
+  - name: Posts
+    description: Operações sobre o recurso de posts, vinculados a um usuário
 
 paths:
   /users:
@@ -179,6 +181,160 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorMessage"
 
+  /users/{id}/posts:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador numérico do usuário.
+        schema:
+          type: integer
+    get:
+      tags: [Posts]
+      summary: Lista os posts de um usuário específico
+      responses:
+        "200":
+          description: Lista de posts do usuário (pode ser vazia)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Lista posts
+      description: Retorna uma página de posts, com suporte a paginação.
+      parameters:
+        - name: page
+          in: query
+          description: Número da página.
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Lista de posts (pode ser vazia)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+    post:
+      tags: [Posts]
+      summary: Cria um post
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        "201":
+          description: Post criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "422":
+          description: >
+            Erro de validação dos campos enviados. Inclui o caso de um
+            `user_id` que não corresponde a um usuário existente
+            (`{"field":"user","message":"must exist"}`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorList"
+
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador numérico do post.
+        schema:
+          type: integer
+    get:
+      tags: [Posts]
+      summary: Busca um post por ID
+      responses:
+        "200":
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: >
+            Post não encontrado. Assim como em Users, a API retorna o mesmo
+            corpo tanto para um ID inexistente quanto para um ID em formato
+            inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    put:
+      tags: [Posts]
+      summary: Atualiza um post existente
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUpdateInput"
+      responses:
+        "200":
+          description: Post atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Post não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    delete:
+      tags: [Posts]
+      summary: Remove um post
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Post removido com sucesso
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Post não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -258,3 +414,42 @@ components:
           message:
             type: string
             example: "has already been taken"
+
+    Post:
+      type: object
+      required: [id, user_id, title, body]
+      properties:
+        id:
+          type: integer
+          example: 290191
+        user_id:
+          type: integer
+          description: ID do usuário autor do post.
+          example: 8600511
+        title:
+          type: string
+        body:
+          type: string
+
+    PostInput:
+      type: object
+      required: [user_id, title, body]
+      properties:
+        user_id:
+          type: integer
+          description: Deve corresponder a um usuário existente.
+        title:
+          type: string
+        body:
+          type: string
+
+    PostUpdateInput:
+      type: object
+      description: Todos os campos são opcionais em uma atualização parcial.
+      properties:
+        user_id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
