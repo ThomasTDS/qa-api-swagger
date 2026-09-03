@@ -25,12 +25,33 @@ Todos os testes que retornam corpo de resposta compatível com o contrato
 também são validados contra a especificação OpenAPI via `jest-openapi`
 (`expect(res).toSatisfyApiSpec()`).
 
+## Casos autenticados (escrita)
+
+Exigem um token pessoal do GoRest na variável de ambiente `GOREST_TOKEN`
+(local via `.env`, ou secret `GOREST_TOKEN` no repositório para o CI). Sem o
+token, estes testes são pulados automaticamente (`describe.skip`) para não
+quebrar o pipeline.
+
+| ID     | Endpoint       | Cenário                                                    | Tipo     | Resultado esperado                                    | Arquivo                                                        |
+| ------ | -------------- | ------------------------------------------------------------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
+| TC-010 | POST /users     | Criar um usuário com dados válidos                             | Positivo | 201 + usuário criado com os dados enviados                 | [users.write.positive.test.js](../tests/users.write.positive.test.js) |
+| TC-011 | PUT /users/{id} | Atualizar um usuário existente                                 | Positivo | 200 + campo atualizado refletido na resposta                | [users.write.positive.test.js](../tests/users.write.positive.test.js) |
+| TC-012 | DELETE /users/{id} | Remover um usuário existente                                | Positivo | 204, e um GET subsequente no mesmo ID retorna 404            | [users.write.positive.test.js](../tests/users.write.positive.test.js) |
+| TC-013 | POST /users     | Criar usuário sem o campo obrigatório `name`                   | Negativo | 422 + erro de validação apontando o campo `name`             | [users.write.negative.test.js](../tests/users.write.negative.test.js) |
+| TC-014 | POST /users     | Criar usuário com `email` em formato inválido                  | Negativo | 422 + erro de validação apontando o campo `email`            | [users.write.negative.test.js](../tests/users.write.negative.test.js) |
+| TC-015 | POST /users     | Criar usuário com `email` já cadastrado                        | Negativo | 422 + erro de validação indicando email duplicado            | [users.write.negative.test.js](../tests/users.write.negative.test.js) |
+| TC-016 | PUT /users/{id} | Atualizar um ID inexistente                                    | Negativo | 404                                                        | [users.write.negative.test.js](../tests/users.write.negative.test.js) |
+| TC-017 | DELETE /users/{id} | Remover um ID inexistente                                   | Negativo | 404                                                        | [users.write.negative.test.js](../tests/users.write.negative.test.js) |
+
+Cada teste de escrita que cria dados remove o que criou ao final (a GoRest é
+um sandbox público compartilhado entre todos os usuários da ferramenta).
+
+Os 8 casos acima (TC-010 a TC-017) foram executados com sucesso contra a API
+real após a configuração do token, confirmando o formato de erro
+`[{"field":..., "message":...}]` usado nas asserções.
+
 ## Próximos passos
 
-- Adicionar cenários autenticados (POST, PUT, DELETE) usando um token pessoal
-  do GoRest, configurado como secret no repositório.
-- Cobrir cenários de validação de campos obrigatórios e formatos (ex.: email
-  inválido, campos ausentes) nas operações de escrita.
 - Ampliar a especificação OpenAPI e os testes para outros recursos da GoRest
   (posts, comments, todos).
 - Adicionar uma coleção Postman/Newman gerada a partir da especificação

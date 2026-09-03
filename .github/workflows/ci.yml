@@ -28,3 +28,5 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}

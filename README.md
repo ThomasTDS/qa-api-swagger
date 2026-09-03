@@ -46,10 +46,12 @@ npm run lint                # lint do código
 npm test                    # executa os testes
 ```
 
-Os testes desta primeira etapa cobrem apenas operações de leitura (`GET`) e
-**não exigem token de autenticação**. Para rodar cenários autenticados
-(quando adicionados), copie `.env.example` para `.env` e preencha
-`GOREST_TOKEN` com um [token pessoal da GoRest](https://gorest.co.in/my-account/access-tokens).
+Os testes de leitura (`GET`) não exigem token de autenticação. Os testes de
+escrita (`POST`/`PUT`/`DELETE`) exigem um token pessoal da GoRest: copie
+`.env.example` para `.env` e preencha `GOREST_TOKEN` com um
+[token pessoal da GoRest](https://gorest.co.in/my-account/access-tokens).
+Sem o token, esses testes são pulados automaticamente, tanto localmente
+quanto no CI.
 
 ## CI/CD
 
