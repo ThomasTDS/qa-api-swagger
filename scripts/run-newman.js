@@ -23,7 +23,15 @@ const options = {
   collection: path.join(__dirname, "..", "postman", "gorest.postman_collection.json"),
   environment: path.join(__dirname, "..", "postman", "gorest.postman_environment.json"),
   envVar: [{ key: "bearerToken", value: process.env.GOREST_TOKEN || "" }],
-  reporters: "cli",
+  reporters: ["cli", "htmlextra"],
+  reporter: {
+    htmlextra: {
+      export: path.join(__dirname, "..", "reports", "newman", "index.html"),
+      title: "Relatório de testes - qa-api-swagger (Postman/Newman)",
+      showEnvironmentData: false,
+      skipHeaders: "Authorization",
+    },
+  },
 };
 
 if (runOnlyReadFolders) {

@@ -34,6 +34,8 @@ Demonstrar, na prática:
 - Testes orientados a schema com **Schemathesis** (*property-based
   testing*), gerando casos de teste automaticamente a partir da spec
   OpenAPI - já encontrou e documentou defeitos reais na API sob teste.
+- Relatórios de teste em **HTML**, gerados a cada execução do Jest e do
+  Newman e publicados como artefato do CI.
 
 ## Estrutura
 
@@ -78,10 +80,11 @@ npm run postman:run             # roda tudo; sem GOREST_TOKEN, pula as pastas de
 npm run postman:run:read-only   # roda só as pastas de leitura, mesmo com token configurado
 ```
 
-> **Nota de segurança:** o `newman` traz uma dependência transitiva
-> (`handlebars`, via `postman-runtime`) com uma vulnerabilidade conhecida
-> reportada pelo `npm audit`. É a versão mais recente disponível do pacote;
-> o risco é aceito aqui porque o `newman` roda só localmente/no CI, como
+> **Nota de segurança:** o `newman` e seus reporters (incluindo
+> `newman-reporter-htmlextra`) trazem dependências transitivas (ex.:
+> `handlebars`, via `postman-runtime`) com vulnerabilidades conhecidas
+> reportadas pelo `npm audit`. São as versões mais recentes disponíveis dos
+> pacotes; o risco é aceito aqui porque rodam só localmente/no CI, como
 > devDependency, contra uma API pública de teste - não em produção.
 
 ## Swagger UI
@@ -119,6 +122,24 @@ Já encontrou e confirmou defeitos reais: reforçou a [issue #3](https://github.
 [issue #9](https://github.com/ThomasTDS/qa-api-swagger/issues/9) (respostas
 405 sem o header `Allow` exigido pela RFC 9110).
 
+## Relatórios de teste (HTML)
+
+Tanto `npm test` quanto `npm run postman:run`/`postman:run:read-only` geram
+relatórios em HTML localmente, em `reports/` (pasta ignorada pelo git):
+
+- `reports/jest/index.html` - via [jest-html-reporters](https://github.com/Hazyzh/jest-html-reporters).
+- `reports/newman/index.html` - via [newman-reporter-htmlextra](https://github.com/DannyDainton/newman-reporter-htmlextra).
+
+O header `Authorization` é explicitamente omitido do relatório do Newman
+(`skipHeaders` em [`scripts/run-newman.js`](scripts/run-newman.js)), para que
+o token real nunca apareça no HTML gerado, mesmo rodando a suíte completa
+autenticada localmente.
+
+No CI, esses relatórios são publicados como artefato (`test-reports`) a cada
+execução - inclusive quando os testes falham, o que ajuda a depurar o motivo
+de uma falha diretamente pelo GitHub Actions, sem precisar reproduzir
+localmente.
+
 ## CI/CD
 
 Todo push e pull request para `main` dispara um workflow que:
@@ -129,6 +150,7 @@ Todo push e pull request para `main` dispara um workflow que:
 4. Executa a coleção Postman via Newman, restrita às pastas de leitura (para
    não duplicar carga de escrita no sandbox público da GoRest a cada
    execução - a cobertura de escrita já é validada pelos testes Jest).
+5. Publica os relatórios HTML gerados como artefato do workflow.
 
 Pull requests exigem esses checks passando, mas o merge é sempre manual -
 não há auto-merge configurado neste repositório.

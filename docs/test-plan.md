@@ -170,6 +170,18 @@ defeito novo, documentado na [issue #9](https://github.com/ThomasTDS/qa-api-swag
 respostas `405 Method Not Allowed` sem o header `Allow` exigido pela RFC
 9110, em 10 endpoints diferentes.
 
+## Relatórios de teste (HTML)
+
+`npm test` e `npm run postman:run`/`postman:run:read-only` geram relatórios
+HTML em `reports/jest/` e `reports/newman/` (via `jest-html-reporters` e
+`newman-reporter-htmlextra`, respectivamente). O header `Authorization` é
+explicitamente omitido do relatório do Newman para que o token real nunca
+apareça no HTML, mesmo rodando a suíte de escrita autenticada localmente
+(verificado manualmente: nenhuma ocorrência do token nem do header no
+arquivo gerado). No CI, esses relatórios são publicados como artefato
+(`test-reports`) a cada execução, inclusive quando os testes falham.
+
 ## Próximos passos
 
-- Relatório de testes em HTML publicado como artefato do CI.
+Nenhum item planejado no momento; novos itens entram aqui conforme o
+projeto evolui.
