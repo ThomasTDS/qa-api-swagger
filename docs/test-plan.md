@@ -1,4 +1,4 @@
-# Plano de testes - Recurso Users (GoRest)
+# Plano de testes - Recursos Users e Posts (GoRest)
 
 API sob teste: `https://gorest.co.in/public/v2` (GoRest, API pública de terceiros).
 Contrato de referência: [`openapi/gorest-openapi.yaml`](../openapi/gorest-openapi.yaml).
@@ -7,7 +7,7 @@ Este documento lista os casos de teste implementados nesta primeira etapa do
 projeto. Novos casos serão adicionados incrementalmente conforme o projeto
 evolui (ver seção "Próximos passos").
 
-## Casos implementados
+## Casos implementados - Users
 
 | ID     | Endpoint            | Cenário                                                              | Tipo     | Resultado esperado                          | Arquivo                                                    |
 | ------ | -------------------- | --------------------------------------------------------------------- | -------- | -------------------------------------------- | ----------------------------------------------------------------- |
@@ -25,7 +25,7 @@ Todos os testes que retornam corpo de resposta compatível com o contrato
 também são validados contra a especificação OpenAPI via `jest-openapi`
 (`expect(res).toSatisfyApiSpec()`).
 
-## Casos autenticados (escrita)
+## Casos autenticados (escrita) - Users
 
 Exigem um token pessoal do GoRest na variável de ambiente `GOREST_TOKEN`
 (local via `.env`, ou secret `GOREST_TOKEN` no repositório para o CI). Sem o
@@ -50,22 +50,46 @@ Os 8 casos acima (TC-010 a TC-017) foram executados com sucesso contra a API
 real após a configuração do token, confirmando o formato de erro
 `[{"field":..., "message":...}]` usado nas asserções.
 
+## Casos implementados - Posts
+
+O recurso Posts é vinculado a um usuário (`user_id`). Os testes de leitura
+não exigem token; os de escrita, sim.
+
+| ID     | Endpoint               | Cenário                                                    | Tipo     | Resultado esperado                                | Arquivo                                                        |
+| ------ | ---------------------- | --------------------------------------------------------------- | -------- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| TC-018 | GET /posts              | Listar posts na primeira página                                   | Positivo | 200 + lista não vazia                                   | [posts.get.positive.test.js](../tests/posts.get.positive.test.js)     |
+| TC-019 | GET /posts/{id}         | Buscar um post existente por ID                                   | Positivo | 200 + dados batendo com o post esperado                  | [posts.get.positive.test.js](../tests/posts.get.positive.test.js)     |
+| TC-020 | GET /users/{id}/posts   | Listar os posts de um usuário específico (endpoint aninhado)      | Positivo | 200 + todos os itens com o `user_id` informado            | [posts.get.positive.test.js](../tests/posts.get.positive.test.js)     |
+| TC-021 | GET /posts/{id}         | Buscar um ID inexistente (ex.: `1`)                                | Negativo | 404 + `{"message":"Resource not found"}`                  | [posts.get.negative.test.js](../tests/posts.get.negative.test.js)     |
+| TC-022 | GET /posts/{id}         | Buscar um ID em formato inválido (ex.: `abc`)                      | Negativo | 404                                                    | [posts.get.negative.test.js](../tests/posts.get.negative.test.js)     |
+| TC-023 | POST /posts             | Criar post sem enviar token de autenticação                       | Negativo | 401 + `{"message":"Authentication failed"}`               | [posts.get.negative.test.js](../tests/posts.get.negative.test.js)     |
+| TC-024 | POST /posts             | Criar um post com dados válidos                                   | Positivo | 201 + post criado com os dados enviados                  | [posts.write.positive.test.js](../tests/posts.write.positive.test.js) |
+| TC-025 | PUT /posts/{id}         | Atualizar um post existente                                       | Positivo | 200 + campo atualizado refletido na resposta              | [posts.write.positive.test.js](../tests/posts.write.positive.test.js) |
+| TC-026 | DELETE /posts/{id}      | Remover um post existente                                         | Positivo | 204, e um GET subsequente no mesmo ID retorna 404          | [posts.write.positive.test.js](../tests/posts.write.positive.test.js) |
+| TC-027 | POST /posts             | Criar post sem o campo obrigatório `title`                        | Negativo | 422 + erro de validação apontando o campo `title`         | [posts.write.negative.test.js](../tests/posts.write.negative.test.js) |
+| TC-028 | POST /posts             | Criar post com `user_id` que não corresponde a um usuário existente | Negativo | 422 + `{"field":"user","message":"must exist"}`          | [posts.write.negative.test.js](../tests/posts.write.negative.test.js) |
+| TC-029 | PUT /posts/{id}         | Atualizar um ID inexistente                                       | Negativo | 404                                                    | [posts.write.negative.test.js](../tests/posts.write.negative.test.js) |
+| TC-030 | DELETE /posts/{id}      | Remover um ID inexistente                                         | Negativo | 404                                                    | [posts.write.negative.test.js](../tests/posts.write.negative.test.js) |
+
+Todos os 13 casos (TC-018 a TC-030) foram executados com sucesso contra a API
+real, incluindo os autenticados.
+
 ## Coleção Postman / Newman
 
 A coleção [`postman/gorest.postman_collection.json`](../postman/gorest.postman_collection.json)
-espelha os mesmos 11 cenários acima (TC-001, TC-004 a TC-006, TC-008 a TC-013
-e TC-017, mais a variação "email já cadastrado"), organizados em duas pastas:
+espelha os cenários acima de Users e Posts, organizados em quatro pastas:
 
-- `Users - Leitura (sem autenticação)`: mesma cobertura de TC-001 a TC-008,
-  sem exigir token. É a pasta executada no CI (`npm run postman:run:read-only`).
-- `Users - Escrita (autenticado)`: mesma cobertura de TC-010 a TC-017,
-  encadeando variáveis de coleção (ex.: usa o usuário criado para depois
-  atualizar e remover). Executada localmente com `npm run postman:run`
-  quando `GOREST_TOKEN` está disponível.
+- `Users - Leitura (sem autenticação)` e `Posts - Leitura (sem autenticação)`:
+  não exigem token. São as pastas executadas no CI
+  (`npm run postman:run:read-only`).
+- `Users - Escrita (autenticado)` e `Posts - Escrita (autenticado)`:
+  encadeiam variáveis de coleção entre requisições (ex.: usa o usuário/post
+  criado para depois atualizar e remover). Executadas localmente com
+  `npm run postman:run` quando `GOREST_TOKEN` está disponível.
 
-Executada e validada localmente: 11 requisições, 19 asserções, 0 falhas.
+Executada e validada localmente: 22 requisições, 38 asserções, 0 falhas.
 
 ## Próximos passos
 
-- Ampliar a especificação OpenAPI e os testes (Jest e Postman) para outros
-  recursos da GoRest (posts, comments, todos).
+- Ampliar a especificação OpenAPI e os testes (Jest e Postman) para os
+  recursos restantes da GoRest (comments, todos).
