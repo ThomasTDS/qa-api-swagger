@@ -46,12 +46,9 @@ quebrar o pipeline.
 Cada teste de escrita que cria dados remove o que criou ao final (a GoRest é
 um sandbox público compartilhado entre todos os usuários da ferramenta).
 
-**Observação sobre verificação:** as asserções de formato dos erros 422
-(TC-013 a TC-015) foram escritas com base no padrão de resposta documentado
-da GoRest, mas ainda não foram confirmadas contra uma execução real com
-token válido - isso deve ser validado assim que `GOREST_TOKEN` estiver
-configurado, antes de considerar esta cobertura como definitivamente
-correta.
+Os 8 casos acima (TC-010 a TC-017) foram executados com sucesso contra a API
+real após a configuração do token, confirmando o formato de erro
+`[{"field":..., "message":...}]` usado nas asserções.
 
 ## Próximos passos
 
