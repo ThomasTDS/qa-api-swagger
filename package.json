@@ -8,7 +8,9 @@
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "lint": "eslint .",
-    "validate:openapi": "swagger-cli validate openapi/gorest-openapi.yaml"
+    "validate:openapi": "swagger-cli validate openapi/gorest-openapi.yaml",
+    "postman:run": "node scripts/run-newman.js",
+    "postman:run:read-only": "node scripts/run-newman.js --read-only"
   },
   "keywords": [
     "api-testing",
@@ -24,6 +26,7 @@
     "globals": "^15.9.0",
     "jest": "^29.7.0",
     "jest-openapi": "^0.14.2",
+    "newman": "^6.2.2",
     "swagger-cli": "^4.0.4"
   },
   "dependencies": {

@@ -30,3 +30,6 @@ jobs:
         run: npm test
         env:
           GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
+
+      - name: Run Postman collection via Newman (somente leitura)
+        run: npm run postman:run:read-only
