@@ -26,6 +26,6 @@ module.exports = [
     },
   },
   {
-    ignores: ["node_modules/", "coverage/"],
+    ignores: ["node_modules/", "coverage/", "reports/"],
   },
 ];
