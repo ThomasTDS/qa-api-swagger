@@ -1,0 +1,33 @@
+{
+  "name": "qa-api-swagger",
+  "version": "1.0.0",
+  "description": "Testes automatizados de API para o GoRest, documentados com OpenAPI/Swagger",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "validate:openapi": "swagger-cli validate openapi/gorest-openapi.yaml"
+  },
+  "keywords": [
+    "api-testing",
+    "openapi",
+    "swagger",
+    "qa"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-jest": "^28.8.0",
+    "globals": "^15.9.0",
+    "jest": "^29.7.0",
+    "jest-openapi": "^0.14.2",
+    "swagger-cli": "^4.0.4"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5"
+  }
+}

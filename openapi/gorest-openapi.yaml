@@ -1,0 +1,260 @@
+openapi: 3.0.3
+info:
+  title: GoRest API - Users
+  description: >
+    Documentação OpenAPI (não oficial) do recurso Users da GoRest
+    (https://gorest.co.in), escrita a partir da observação do comportamento
+    real da API pública. Usada como contrato de referência para os testes
+    automatizados deste repositório.
+  version: "1.0.0"
+  contact:
+    name: GoRest (API pública de terceiros)
+    url: https://gorest.co.in/
+externalDocs:
+  description: Site oficial da GoRest
+  url: https://gorest.co.in/
+
+servers:
+  - url: https://gorest.co.in/public/v2
+    description: Ambiente público da GoRest
+
+tags:
+  - name: Users
+    description: Operações sobre o recurso de usuários
+
+paths:
+  /users:
+    get:
+      tags: [Users]
+      summary: Lista usuários
+      description: Retorna uma página de usuários, com suporte a filtros e paginação.
+      parameters:
+        - name: page
+          in: query
+          description: Número da página. Valores menores que 1 são tratados como 1.
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          description: Quantidade de itens por página.
+          schema:
+            type: integer
+            default: 10
+        - name: gender
+          in: query
+          description: >
+            Filtra por gênero. Valores fora do enum (male/female) não geram erro:
+            a API retorna 200 com uma lista vazia (ver issue documentada no repositório).
+          schema:
+            type: string
+            enum: [male, female]
+        - name: status
+          in: query
+          description: Filtra por status.
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Lista de usuários (pode ser vazia)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags: [Users]
+      summary: Cria um usuário
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "422":
+          description: Erro de validação dos campos enviados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorList"
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador numérico do usuário.
+        schema:
+          type: integer
+    get:
+      tags: [Users]
+      summary: Busca um usuário por ID
+      responses:
+        "200":
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: >
+            Usuário não encontrado. A API retorna o mesmo corpo tanto para um
+            ID inexistente quanto para um ID em formato inválido (ex.: não numérico) -
+            ver issue documentada no repositório.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+    put:
+      tags: [Users]
+      summary: Atualiza um usuário existente
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateInput"
+      responses:
+        "200":
+          description: Usuário atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "422":
+          description: Erro de validação dos campos enviados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorList"
+    delete:
+      tags: [Users]
+      summary: Remove um usuário
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Usuário removido com sucesso
+        "401":
+          description: Token de autenticação ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "GoRest personal access token"
+
+  schemas:
+    User:
+      type: object
+      required: [id, name, email, gender, status]
+      properties:
+        id:
+          type: integer
+          example: 8599730
+        name:
+          type: string
+          example: "Preity Panicker"
+        email:
+          type: string
+          format: email
+          example: "preity_panicker@considine.test"
+        gender:
+          type: string
+          enum: [male, female]
+        status:
+          type: string
+          enum: [active, inactive]
+
+    UserInput:
+      type: object
+      required: [name, email, gender, status]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        gender:
+          type: string
+          enum: [male, female]
+        status:
+          type: string
+          enum: [active, inactive]
+
+    UserUpdateInput:
+      type: object
+      description: Todos os campos são opcionais em uma atualização parcial.
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        gender:
+          type: string
+          enum: [male, female]
+        status:
+          type: string
+          enum: [active, inactive]
+
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Resource not found"
+
+    ValidationErrorList:
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+            example: "email"
+          message:
+            type: string
+            example: "has already been taken"
