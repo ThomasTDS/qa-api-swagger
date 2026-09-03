@@ -1,4 +1,4 @@
-# Plano de testes - Recursos Users e Posts (GoRest)
+# Plano de testes - Recursos Users, Posts, Comments e Todos (GoRest)
 
 API sob teste: `https://gorest.co.in/public/v2` (GoRest, API pública de terceiros).
 Contrato de referência: [`openapi/gorest-openapi.yaml`](../openapi/gorest-openapi.yaml).
@@ -74,22 +74,74 @@ não exigem token; os de escrita, sim.
 Todos os 13 casos (TC-018 a TC-030) foram executados com sucesso contra a API
 real, incluindo os autenticados.
 
+## Casos implementados - Comments
+
+O recurso Comments é vinculado a um post (`post_id`). Os testes de leitura
+não exigem token; os de escrita, sim.
+
+| ID     | Endpoint                | Cenário                                                            | Tipo     | Resultado esperado                                | Arquivo                                                              |
+| ------ | ------------------------ | --------------------------------------------------------------------- | -------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
+| TC-031 | GET /comments             | Listar comments na primeira página                                   | Positivo | 200 + lista não vazia                                   | [comments.get.positive.test.js](../tests/comments.get.positive.test.js)   |
+| TC-032 | GET /comments/{id}        | Buscar um comment existente por ID                                   | Positivo | 200 + dados batendo com o comment esperado                | [comments.get.positive.test.js](../tests/comments.get.positive.test.js)   |
+| TC-033 | GET /posts/{id}/comments  | Listar os comments de um post específico (endpoint aninhado)         | Positivo | 200 + todos os itens com o `post_id` informado             | [comments.get.positive.test.js](../tests/comments.get.positive.test.js)   |
+| TC-034 | GET /comments/{id}        | Buscar um ID inexistente (ex.: `1`)                                   | Negativo | 404 + `{"message":"Resource not found"}`                   | [comments.get.negative.test.js](../tests/comments.get.negative.test.js)   |
+| TC-035 | GET /comments/{id}        | Buscar um ID em formato inválido (ex.: `abc`)                         | Negativo | 404                                                     | [comments.get.negative.test.js](../tests/comments.get.negative.test.js)   |
+| TC-036 | POST /comments            | Criar comment sem enviar token de autenticação                       | Negativo | 401 + `{"message":"Authentication failed"}`                | [comments.get.negative.test.js](../tests/comments.get.negative.test.js)   |
+| TC-037 | POST /comments            | Criar um comment com dados válidos                                   | Positivo | 201 + comment criado com os dados enviados                | [comments.write.positive.test.js](../tests/comments.write.positive.test.js) |
+| TC-038 | PUT /comments/{id}        | Atualizar um comment existente                                       | Positivo | 200 + campo atualizado refletido na resposta               | [comments.write.positive.test.js](../tests/comments.write.positive.test.js) |
+| TC-039 | DELETE /comments/{id}     | Remover um comment existente                                         | Positivo | 204, e um GET subsequente no mesmo ID retorna 404           | [comments.write.positive.test.js](../tests/comments.write.positive.test.js) |
+| TC-040 | POST /comments            | Criar comment sem o campo obrigatório `body`                         | Negativo | 422 + erro de validação apontando o campo `body`           | [comments.write.negative.test.js](../tests/comments.write.negative.test.js) |
+| TC-041 | POST /comments            | Criar comment com `post_id` que não corresponde a um post existente  | Negativo | 422 + `{"field":"post","message":"must exist"}`            | [comments.write.negative.test.js](../tests/comments.write.negative.test.js) |
+| TC-042 | PUT /comments/{id}        | Atualizar um ID inexistente                                          | Negativo | 404                                                     | [comments.write.negative.test.js](../tests/comments.write.negative.test.js) |
+| TC-043 | DELETE /comments/{id}     | Remover um ID inexistente                                            | Negativo | 404                                                     | [comments.write.negative.test.js](../tests/comments.write.negative.test.js) |
+
+Todos os 13 casos (TC-031 a TC-043) foram executados com sucesso contra a API
+real, incluindo os autenticados.
+
+## Casos implementados - Todos
+
+O recurso Todos é vinculado a um usuário (`user_id`) e possui um campo
+`status` restrito ao enum `pending`/`completed`. Os testes de leitura não
+exigem token; os de escrita, sim.
+
+| ID     | Endpoint             | Cenário                                                          | Tipo     | Resultado esperado                                | Arquivo                                                        |
+| ------ | --------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| TC-044 | GET /todos             | Listar todos na primeira página                                       | Positivo | 200 + lista não vazia                                   | [todos.get.positive.test.js](../tests/todos.get.positive.test.js)     |
+| TC-045 | GET /todos/{id}        | Buscar um todo existente por ID                                       | Positivo | 200 + dados batendo com o todo esperado                  | [todos.get.positive.test.js](../tests/todos.get.positive.test.js)     |
+| TC-046 | GET /users/{id}/todos  | Listar os todos de um usuário específico (endpoint aninhado)          | Positivo | 200 + todos os itens com o `user_id` informado            | [todos.get.positive.test.js](../tests/todos.get.positive.test.js)     |
+| TC-047 | GET /todos/{id}        | Buscar um ID inexistente (ex.: `1`)                                    | Negativo | 404 + `{"message":"Resource not found"}`                   | [todos.get.negative.test.js](../tests/todos.get.negative.test.js)     |
+| TC-048 | GET /todos/{id}        | Buscar um ID em formato inválido (ex.: `abc`)                          | Negativo | 404                                                     | [todos.get.negative.test.js](../tests/todos.get.negative.test.js)     |
+| TC-049 | POST /todos            | Criar todo sem enviar token de autenticação                           | Negativo | 401 + `{"message":"Authentication failed"}`                | [todos.get.negative.test.js](../tests/todos.get.negative.test.js)     |
+| TC-050 | POST /todos            | Criar um todo com dados válidos                                       | Positivo | 201 + todo criado com os dados enviados                   | [todos.write.positive.test.js](../tests/todos.write.positive.test.js) |
+| TC-051 | PUT /todos/{id}        | Atualizar o status de um todo existente                               | Positivo | 200 + status atualizado refletido na resposta              | [todos.write.positive.test.js](../tests/todos.write.positive.test.js) |
+| TC-052 | DELETE /todos/{id}     | Remover um todo existente                                             | Positivo | 204, e um GET subsequente no mesmo ID retorna 404           | [todos.write.positive.test.js](../tests/todos.write.positive.test.js) |
+| TC-053 | POST /todos            | Criar todo sem o campo obrigatório `title`                            | Negativo | 422 + erro de validação apontando o campo `title`          | [todos.write.negative.test.js](../tests/todos.write.negative.test.js) |
+| TC-054 | POST /todos            | Criar todo com `status` fora do enum permitido                        | Negativo | 422 + erro de validação apontando o campo `status`         | [todos.write.negative.test.js](../tests/todos.write.negative.test.js) |
+| TC-055 | POST /todos            | Criar todo com `user_id` que não corresponde a um usuário existente   | Negativo | 422 + `{"field":"user","message":"must exist"}`            | [todos.write.negative.test.js](../tests/todos.write.negative.test.js) |
+| TC-056 | PUT /todos/{id}        | Atualizar um ID inexistente                                           | Negativo | 404                                                     | [todos.write.negative.test.js](../tests/todos.write.negative.test.js) |
+| TC-057 | DELETE /todos/{id}     | Remover um ID inexistente                                             | Negativo | 404                                                     | [todos.write.negative.test.js](../tests/todos.write.negative.test.js) |
+
+Todos os 14 casos (TC-044 a TC-057) foram executados com sucesso contra a API
+real, incluindo os autenticados.
+
 ## Coleção Postman / Newman
 
 A coleção [`postman/gorest.postman_collection.json`](../postman/gorest.postman_collection.json)
-espelha os cenários acima de Users e Posts, organizados em quatro pastas:
+espelha os cenários acima dos quatro recursos, organizados em oito pastas
+(leitura/escrita × Users/Posts/Comments/Todos):
 
-- `Users - Leitura (sem autenticação)` e `Posts - Leitura (sem autenticação)`:
-  não exigem token. São as pastas executadas no CI
-  (`npm run postman:run:read-only`).
-- `Users - Escrita (autenticado)` e `Posts - Escrita (autenticado)`:
-  encadeiam variáveis de coleção entre requisições (ex.: usa o usuário/post
-  criado para depois atualizar e remover). Executadas localmente com
-  `npm run postman:run` quando `GOREST_TOKEN` está disponível.
+- Pastas `* - Leitura (sem autenticação)`: não exigem token. São as pastas
+  executadas no CI (`npm run postman:run:read-only`).
+- Pastas `* - Escrita (autenticado)`: encadeiam variáveis de coleção entre
+  requisições (ex.: usa o registro criado para depois atualizar e remover).
+  Executadas localmente com `npm run postman:run` quando `GOREST_TOKEN` está
+  disponível.
 
-Executada e validada localmente: 22 requisições, 38 asserções, 0 falhas.
+Executada e validada localmente: 45 requisições, 78 asserções, 0 falhas
+(suíte completa); 20 requisições, 32 asserções, 0 falhas (somente leitura).
 
 ## Próximos passos
 
-- Ampliar a especificação OpenAPI e os testes (Jest e Postman) para os
-  recursos restantes da GoRest (comments, todos).
+- Testes orientados a schema (geração automática de casos a partir da spec
+  OpenAPI), para complementar os casos escritos manualmente.
+- Relatório de testes em HTML publicado como artefato do CI.

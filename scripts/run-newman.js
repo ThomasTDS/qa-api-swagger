@@ -5,6 +5,8 @@ const newman = require("newman");
 const READ_ONLY_FOLDERS = [
   "Users - Leitura (sem autenticação)",
   "Posts - Leitura (sem autenticação)",
+  "Comments - Leitura (sem autenticação)",
+  "Todos - Leitura (sem autenticação)",
 ];
 
 const readOnly = process.argv.includes("--read-only");
