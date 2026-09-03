@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GoRest API - Users e Posts | Swagger UI</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"
+    />
+    <link
+      rel="icon"
+      href="https://unpkg.com/swagger-ui-dist@5/favicon-32x32.png"
+    />
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => {
+        window.ui = SwaggerUIBundle({
+          url: "https://raw.githubusercontent.com/ThomasTDS/qa-api-swagger/main/openapi/gorest-openapi.yaml",
+          dom_id: "#swagger-ui",
+          presets: [SwaggerUIBundle.presets.apis],
+        });
+      };
+    </script>
+  </body>
+</html>

@@ -5,6 +5,8 @@ via **OpenAPI/Swagger**. A API sob teste é a [GoRest](https://gorest.co.in/),
 um serviço público de testes com um recurso REST completo de usuários, posts,
 comments e todos.
 
+**Swagger UI publicado:** https://thomastds.github.io/qa-api-swagger/
+
 Este repositório é construído de forma incremental: começa com um conjunto
 pequeno de testes e cresce ao longo do tempo, cobrindo mais endpoints,
 cenários e ferramentas.
@@ -27,17 +29,20 @@ Demonstrar, na prática:
 - Uma coleção **Postman**, gerada a partir da mesma especificação OpenAPI e
   executada via **Newman**, como forma alternativa de rodar os testes de
   contrato.
+- Uma instância do **Swagger UI** publicada via GitHub Pages, renderizando a
+  especificação diretamente do repositório.
 
 ## Estrutura
 
 ```
-openapi/    especificação OpenAPI dos recursos testados
-src/        cliente HTTP usado pelos testes Jest
-tests/      casos de teste (Jest)
-postman/    collection e environment do Postman/Newman
-scripts/    script de execução da collection via Newman
-docs/       plano de testes e documentação
-.github/    workflow de CI
+openapi/     especificação OpenAPI dos recursos testados
+src/         cliente HTTP usado pelos testes Jest
+tests/       casos de teste (Jest)
+postman/     collection e environment do Postman/Newman
+scripts/     script de execução da collection via Newman
+swagger-ui/  página estática do Swagger UI, publicada via GitHub Pages
+docs/        plano de testes e documentação
+.github/     workflows de CI e deploy do Pages
 ```
 
 ## Como rodar localmente
@@ -74,6 +79,15 @@ npm run postman:run:read-only   # roda só as pastas de leitura, mesmo com token
 > reportada pelo `npm audit`. É a versão mais recente disponível do pacote;
 > o risco é aceito aqui porque o `newman` roda só localmente/no CI, como
 > devDependency, contra uma API pública de teste - não em produção.
+
+## Swagger UI
+
+A especificação em `openapi/gorest-openapi.yaml` é renderizada ao vivo em
+https://thomastds.github.io/qa-api-swagger/, via [Swagger UI](https://swagger.io/tools/swagger-ui/).
+A página (`swagger-ui/index.html`) carrega o Swagger UI por CDN e aponta para
+o arquivo da spec direto no branch `main` do repositório - qualquer merge que
+altere a spec atualiza a documentação publicada automaticamente, via o
+workflow [`pages.yml`](.github/workflows/pages.yml).
 
 ## CI/CD
 
