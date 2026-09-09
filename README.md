@@ -178,6 +178,9 @@ Todo push e pull request para `main` dispara um workflow que:
 Pull requests exigem esses checks passando, mas o merge é sempre manual -
 não há auto-merge configurado neste repositório.
 
+Detalhes sobre o fluxo de branches, padrão de commits e como configurar o
+ambiente estão em [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Outro projeto relacionado
 
 Para testes de API sobre o [restful-booker](https://restful-booker.herokuapp.com/),
