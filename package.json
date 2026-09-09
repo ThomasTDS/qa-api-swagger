@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "validate:openapi": "swagger-cli validate openapi/gorest-openapi.yaml",
     "postman:run": "node scripts/run-newman.js",
-    "postman:run:read-only": "node scripts/run-newman.js --read-only"
+    "postman:run:read-only": "node scripts/run-newman.js --read-only",
+    "prepare": "husky"
   },
   "keywords": [
     "api-testing",
@@ -19,14 +20,19 @@
     "qa"
   ],
   "license": "MIT",
+  "lint-staged": {
+    "*.js": "eslint --fix"
+  },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "eslint": "^9.9.0",
     "eslint-plugin-jest": "^28.8.0",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-html-reporters": "^3.1.7",
     "jest-openapi": "^0.14.2",
+    "lint-staged": "^17.5.0",
     "newman": "^6.2.2",
     "newman-reporter-htmlextra": "^1.23.1",
     "swagger-cli": "^4.0.4"

@@ -72,6 +72,11 @@ escrita (`POST`/`PUT`/`DELETE`) exigem um token pessoal da GoRest: copie
 Sem o token, esses testes são pulados automaticamente, tanto localmente
 quanto no CI.
 
+`npm install` já configura um hook de pre-commit (via [husky](https://typicode.github.io/husky/)
++ [lint-staged](https://github.com/lint-staged/lint-staged)) que roda
+`eslint --fix` nos arquivos `.js` staged antes de cada commit local - erros
+que o `--fix` não resolve automaticamente bloqueiam o commit.
+
 ### Postman / Newman
 
 A coleção em [`postman/gorest.postman_collection.json`](postman/gorest.postman_collection.json)
