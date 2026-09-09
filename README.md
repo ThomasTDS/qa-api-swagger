@@ -1,6 +1,7 @@
 # qa-api-swagger
 
 [![CI](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ThomasTDS/qa-api-swagger/branch/main/graph/badge.svg)](https://codecov.io/gh/ThomasTDS/qa-api-swagger)
 [![Swagger UI](https://img.shields.io/badge/docs-swagger--ui-85EA2D?logo=swagger&logoColor=white)](https://thomastds.github.io/qa-api-swagger/)
 [![License: MIT](https://img.shields.io/github/license/ThomasTDS/qa-api-swagger)](LICENSE)
 
@@ -142,17 +143,32 @@ execução - inclusive quando os testes falham, o que ajuda a depurar o motivo
 de uma falha diretamente pelo GitHub Actions, sem precisar reproduzir
 localmente.
 
+## Cobertura de testes
+
+`npm test` gera cobertura automaticamente (via `--coverage`, configurado em
+`jest.config.js`), publicada no [Codecov](https://codecov.io/gh/ThomasTDS/qa-api-swagger)
+a cada execução do CI.
+
+Vale um esclarecimento: como este é um projeto de testes de API, quase toda a
+lógica testada vive na API sob teste (a GoRest), não no código deste
+repositório. `collectCoverageFrom` mede apenas [`src/apiClient.js`](src/apiClient.js) -
+o único arquivo de código próprio - então o percentual reflete o quão
+exercitado está esse cliente HTTP, e não o quão bem a GoRest está testada
+(isso é medido pela quantidade e variedade de casos em `docs/test-plan.md`,
+não por cobertura de linhas).
+
 ## CI/CD
 
 Todo push e pull request para `main` dispara um workflow que:
 
 1. Valida a especificação OpenAPI (`swagger-cli validate`).
 2. Roda o lint (`eslint`).
-3. Executa a suíte de testes (`jest`).
-4. Executa a coleção Postman via Newman, restrita às pastas de leitura (para
+3. Executa a suíte de testes (`jest`), gerando cobertura.
+4. Publica a cobertura no Codecov.
+5. Executa a coleção Postman via Newman, restrita às pastas de leitura (para
    não duplicar carga de escrita no sandbox público da GoRest a cada
    execução - a cobertura de escrita já é validada pelos testes Jest).
-5. Publica os relatórios HTML gerados como artefato do workflow.
+6. Publica os relatórios HTML gerados como artefato do workflow.
 
 Pull requests exigem esses checks passando, mas o merge é sempre manual -
 não há auto-merge configurado neste repositório.

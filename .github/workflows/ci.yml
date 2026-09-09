@@ -31,6 +31,14 @@ jobs:
         env:
           GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
 
+      - name: Upload cobertura para o Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
       - name: Run Postman collection via Newman (somente leitura)
         run: npm run postman:run:read-only
 
