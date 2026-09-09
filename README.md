@@ -1,11 +1,13 @@
 # qa-api-swagger
 
+[![CI](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml)
+[![Swagger UI](https://img.shields.io/badge/docs-swagger--ui-85EA2D?logo=swagger&logoColor=white)](https://thomastds.github.io/qa-api-swagger/)
+[![License: MIT](https://img.shields.io/github/license/ThomasTDS/qa-api-swagger)](LICENSE)
+
 Projeto de testes automatizados de API, com foco em documentação de contrato
 via **OpenAPI/Swagger**. A API sob teste é a [GoRest](https://gorest.co.in/),
 um serviço público de testes com um recurso REST completo de usuários, posts,
 comments e todos.
-
-**Swagger UI publicado:** https://thomastds.github.io/qa-api-swagger/
 
 Este repositório é construído de forma incremental: começa com um conjunto
 pequeno de testes e cresce ao longo do tempo, cobrindo mais endpoints,
