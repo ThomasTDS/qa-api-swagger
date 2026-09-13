@@ -93,7 +93,9 @@ npm run postman:run:read-only   # roda só as pastas de leitura, mesmo com token
 > `handlebars`, via `postman-runtime`) com vulnerabilidades conhecidas
 > reportadas pelo `npm audit`. São as versões mais recentes disponíveis dos
 > pacotes; o risco é aceito aqui porque rodam só localmente/no CI, como
-> devDependency, contra uma API pública de teste - não em produção.
+> devDependency, contra uma API pública de teste - não em produção. O
+> [Dependabot](.github/dependabot.yml) está configurado para abrir PR assim
+> que uma versão corrigida existir.
 
 ## Swagger UI
 
@@ -180,6 +182,17 @@ não há auto-merge configurado neste repositório.
 
 Detalhes sobre o fluxo de branches, padrão de commits e como configurar o
 ambiente estão em [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Dependências
+
+O [Dependabot](.github/dependabot.yml) verifica semanalmente três conjuntos
+de dependências e abre PR quando há atualização: pacotes `npm` (raiz do
+projeto), `pip` (`schema-tests/requirements.txt`) e as actions usadas nos
+workflows do GitHub Actions. Atualizações menores/patch do `npm` são
+agrupadas em um único PR para reduzir ruído. Alertas de vulnerabilidade e
+correções automáticas de segurança também estão habilitados no repositório -
+como em todo o resto do projeto, esses PRs passam pelos checks do CI e são
+mergeados manualmente, um a um.
 
 ## Outro projeto relacionado
 
