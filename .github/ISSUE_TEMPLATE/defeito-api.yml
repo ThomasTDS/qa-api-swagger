@@ -1,0 +1,74 @@
+name: Defeito observado na API sob teste
+description: >-
+  Documenta um comportamento inesperado da GoRest (a API sob teste)
+  encontrado durante os testes - não um bug do código deste repositório.
+title: "[Defeito] "
+labels: ["defeito-api"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Este template é para comportamentos inesperados da **GoRest**
+        (API pública de terceiros sob teste), descobertos manualmente ou
+        pelos testes automatizados/Schemathesis - não para problemas no
+        código deste repositório.
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: Descrição
+      description: O que a API faz de diferente do documentado/esperado?
+    validations:
+      required: true
+
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      description: Comando `curl` ou requisição equivalente.
+      render: bash
+      placeholder: |
+        curl -i https://gorest.co.in/public/v2/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: atual
+    attributes:
+      label: Resultado atual
+    validations:
+      required: true
+
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Por que isso importa para quem consome a API?
+    validations:
+      required: false
+
+  - type: textarea
+    id: referencia
+    attributes:
+      label: Caso de teste / como foi encontrado
+      description: >-
+        Ex.: TC-XXX em docs/test-plan.md, ou a ferramenta que encontrou
+        (Jest, Postman/Newman, Schemathesis).
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        Lembrete: a GoRest é uma API pública de terceiros; este
+        comportamento não pode ser corrigido neste repositório. A issue
+        serve para documentar o defeito observado como parte do processo
+        de testes.
