@@ -66,7 +66,11 @@ Tipos usados: `feat`, `fix`, `docs`, `ci`, `chore`.
 - Defeitos observados na API sob teste (não bugs deste repositório) são
   documentados como issues, com passos de reprodução, resultado atual vs.
   esperado, e uma nota deixando claro que é um comportamento de terceiros
-  que não pode ser corrigido aqui.
+  que não pode ser corrigido aqui. Use o template "Defeito observado na API
+  sob teste" ao abrir uma issue nova - ele já cobre esses campos.
+- PRs usam o template em [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)
+  (preenchido automaticamente ao abrir um PR): resumo da mudança e comandos
+  de validação local rodados.
 
 ## CI/CD
 
