@@ -24,7 +24,7 @@
     "*.js": "eslint --fix"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.0",
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.9.0",
     "eslint-plugin-jest": "^28.8.0",
     "globals": "^17.12.0",
