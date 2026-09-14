@@ -194,6 +194,9 @@ correções automáticas de segurança também estão habilitados no repositóri
 como em todo o resto do projeto, esses PRs passam pelos checks do CI e são
 mergeados manualmente, um a um.
 
+Para reportar uma vulnerabilidade (ou entender o que está fora de escopo,
+como comportamentos da GoRest em si), ver [`SECURITY.md`](SECURITY.md).
+
 ## Outro projeto relacionado
 
 Para testes de API sobre o [restful-booker](https://restful-booker.herokuapp.com/),
