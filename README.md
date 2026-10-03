@@ -39,6 +39,10 @@ Demonstrar, na prática:
   OpenAPI - já encontrou e documentou defeitos reais na API sob teste.
 - Relatórios de teste em **HTML**, gerados a cada execução do Jest e do
   Newman e publicados como artefato do CI.
+- Testes de segurança inspirados no **OWASP API Security Top 10**
+  (autenticação inválida, mass assignment, tratamento de entrada,
+  observação de rate limiting), com um recorte que nunca toca dado de
+  terceiros nem faz varredura agressiva contra o sandbox público.
 
 ## Estrutura
 

@@ -173,6 +173,32 @@ defeito novo, documentado na [issue #9](https://github.com/ThomasTDS/qa-api-swag
 respostas `405 Method Not Allowed` sem o header `Allow` exigido pela RFC
 9110, em 10 endpoints diferentes.
 
+## Casos implementados - Segurança
+
+Cenários inspirados no OWASP API Security Top 10, com um recorte
+deliberadamente seguro: a GoRest é uma API pública compartilhada por todo
+mundo que usa a ferramenta, então nenhum teste aqui toca ou tenta acessar
+dado que não foi criado pelo próprio teste, nem faz varredura agressiva
+contra o serviço. Categorias do Top 10 que exigiriam isso (ex.: autorização
+por nível de função administrativa, que a GoRest nem possui) ficam fora de
+escopo.
+
+| ID     | Endpoint                    | Cenário                                                              | Tipo     | Resultado esperado                                         | Arquivo                                                      |
+| ------ | ---------------------------- | ------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------- |
+| TC-061 | POST /users                  | Token de autenticação inválido (não apenas ausente)                      | Negativo | 401 + `{"message":"Invalid token"}` (mensagem distinta de token ausente) | [security.test.js](../tests/security.test.js)                      |
+| TC-062 | PUT /users/{id}               | Token de autenticação inválido                                           | Negativo | 401                                                             | [security.test.js](../tests/security.test.js)                      |
+| TC-063 | DELETE /users/{id}            | Token de autenticação inválido                                           | Negativo | 401                                                             | [security.test.js](../tests/security.test.js)                      |
+| TC-064 | GET /users                    | Rajada de 15 requisições simultâneas (observação de rate limiting)       | Observacional | 200 em todas, sem header de rate limit nem 429 - ver issue documentada | [security.test.js](../tests/security.test.js)                      |
+| TC-065 | POST /users                  | Cliente tenta definir o próprio `id` (mass assignment)                    | Negativo | 201 + `id` gerado pelo servidor, ignorando o valor enviado         | [security.write.test.js](../tests/security.write.test.js)          |
+| TC-066 | PUT /users/{id}               | Cliente tenta alterar o `id` de um registro existente (mass assignment)  | Negativo | 200 + `id` original inalterado                                    | [security.write.test.js](../tests/security.write.test.js)          |
+| TC-067 | POST /users                  | Caracteres especiais/script no campo `name`                              | Positivo | 201 + valor armazenado e devolvido integralmente, sem erro 500     | [security.write.test.js](../tests/security.write.test.js)          |
+
+Todos os 7 casos (TC-061 a TC-067) foram executados com sucesso contra a API
+real, incluindo os autenticados. O TC-064 documenta uma característica (não
+necessariamente um defeito) na [issue #43](https://github.com/ThomasTDS/qa-api-swagger/issues/43):
+a GoRest não expõe nenhum sinal de rate limiting em endpoints de leitura,
+pelo menos até o volume testado.
+
 ## Relatórios de teste (HTML)
 
 `npm test` e `npm run postman:run`/`postman:run:read-only` geram relatórios
