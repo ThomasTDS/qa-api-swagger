@@ -1,5 +1,7 @@
 # qa-api-swagger
 
+*[Read this in English](README.en.md)*
+
 [![CI](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml/badge.svg)](https://github.com/ThomasTDS/qa-api-swagger/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/ThomasTDS/qa-api-swagger/branch/main/graph/badge.svg)](https://codecov.io/gh/ThomasTDS/qa-api-swagger)
 [![Swagger UI](https://img.shields.io/badge/docs-swagger--ui-85EA2D?logo=swagger&logoColor=white)](https://thomastds.github.io/qa-api-swagger/)
