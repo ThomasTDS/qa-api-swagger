@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "eslint-plugin-jest": "^29.17.0",
     "globals": "^17.13.0",
     "husky": "^9.1.7",
@@ -38,7 +38,7 @@
     "swagger-cli": "^4.0.4"
   },
   "dependencies": {
-    "axios": "^1.7.7",
-    "dotenv": "^18.0.8"
+    "axios": "^1.21.0",
+    "dotenv": "^18.0.9"
   }
 }
